@@ -91,7 +91,7 @@ int main(int argc, char **argv) {
   typedef WilsonCloverTwoIndexAntiSymmetricFermionR ASymmFermionAction; 
   typedef typename ASymmFermionAction::FermionField ASymmFermionField;
 
-  typedef Grid::XmlReader Serialiser;
+  typedef Grid::JSONReader Serialiser;
   //::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
   HMCWrapper TheHMC;
   
