@@ -53,7 +53,7 @@ int main (int argc, char ** argv)
   GridParallelRNG          RNG4(UGrid);  RNG4.SeedFixedIntegers(seeds4);
   std::cout << GridLogMessage << "Seeded"<<std::endl;
 
-  LatticeGaugeField Umu(UGrid); SU3::HotConfiguration(RNG4,Umu);
+  LatticeGaugeField Umu(UGrid); SU<Nc>::HotConfiguration(RNG4,Umu);
 
   std::cout << GridLogMessage << "made random gauge fields"<<std::endl;
 
