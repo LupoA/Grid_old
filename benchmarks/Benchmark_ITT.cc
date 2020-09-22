@@ -324,7 +324,7 @@ public:
     typedef LatticeGaugeFieldF Gauge;
     
     ///////// Source preparation ////////////
-    Gauge Umu(UGrid);  SU3::HotConfiguration(RNG4,Umu); 
+    Gauge Umu(UGrid);  SU<Nc>::HotConfiguration(RNG4,Umu);
     Fermion src   (FGrid); random(RNG5,src);
     Fermion src_e (FrbGrid);
     Fermion src_o (FrbGrid);
@@ -478,7 +478,7 @@ public:
     typedef typename Action::FermionField Fermion; 
     typedef LatticeGaugeFieldF Gauge;
     
-    Gauge Umu(FGrid);  SU3::HotConfiguration(RNG4,Umu); 
+    Gauge Umu(FGrid);  SU<Nc>::HotConfiguration(RNG4,Umu);
 
     typename Action::ImplParams params;
     Action Ds(Umu,Umu,*FGrid,*FrbGrid,mass,c1,c2,u0,params);
