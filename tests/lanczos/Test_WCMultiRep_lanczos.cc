@@ -88,9 +88,13 @@ int main(int argc, char** argv) {
  
 NerscHmcCheckpointer<PeriodicGimplR> Checkpoint(CPparams);
 
-  int CNFGSTART=1;
-  int CNFGEND=2;
+  int CNFGSTART=10;
+  int CNFGEND=20;
   int CNFGSTEP=1;
+  int cngfcount= (CNFGEND-CNFGSTART)/CNFGSTEP+1;
+    std::cout << "Analysed configs: " << cngfcount << std::endl;
+  std::vector<RealD> FundEig(cngfcount);
+  std::vector<RealD> ASEig(cngfcount);
 
   Real Fundmass = -0.1;
   Real Fundcsw  =  1.0;
@@ -117,24 +121,34 @@ NerscHmcCheckpointer<PeriodicGimplR> Checkpoint(CPparams);
 
   FundFermionAction FundFermOp(Umu,*FGrid,*FrbGrid, Fundmass, Fundcsw, Fundcsw);
   MdagMLinearOperator<FundFermionAction,FundFermionField> HermOpFund(FundFermOp); /// <-----
+   //Gamma5HermitianLinearOperator<FundFermionAction,FundFermionField> HermOpFund(FundFermOp);
   
   ASymmFermionAction ASFermOp(UmuAS,*FGrid,*FrbGrid, ASmass, AScsw, AScsw);
   MdagMLinearOperator<ASymmFermionAction,ASymmFermionField> HermOpAS(ASFermOp); /// <-----
+   // Gamma5HermitianLinearOperator<ASymmFermionAction,ASymmFermionField> HermOpAS(ASFermOp); /// <-----
   
-  std::vector<double> Coeffs{0, -1.};
+  std::vector<double> Coeffs{0, 1.};
   Polynomial<FundFermionField> FundPolyX(Coeffs);
   //Chebyshev<FundFermionField> FundCheb(0.0, 10., 12);
+  ChebyshevLanczos<FundFermionField> FundCheby(101., 10, 0.0, 13);
   
-  FunctionHermOp<FundFermionField> FundPolyXOp(FundPolyX,HermOpFund);
+    // FunctionHermOp<FundFermionField> FundPolyXOp(FundPolyX,HermOpFund);
+  // FunctionHermOp<FundFermionField> FundPolyXOp(FundCheby,HermOpFund);
+  FunctionHermOp<FundFermionField> OpChebyFund(FundCheby,HermOpFund);
   PlainHermOp<FundFermionField>    FundOp     (HermOpFund);
 
-  ImplicitlyRestartedLanczos<FundFermionField> IRL_Fund(FundOp, FundPolyXOp, Nstop, Nk, Nm,
-                                               resid, MaxIt);
+  //  ImplicitlyRestartedLanczos<FundFermionField> IRL_Fund(FundOp, FundPolyXOp, Nstop, Nk, Nm,
+   //resid, MaxIt);
+   ImplicitlyRestartedLanczos<FundFermionField> IRL_Fund(OpChebyFund, FundOp, Nstop, Nk, Nm,
+                                                         resid, MaxIt);
   
   Polynomial<ASymmFermionField> ASPolyX(Coeffs);
-  //Chebyshev<ASymmFermionField> ASCheb(0.0, 10., 12);
+  //Chebyshev<ASymmFermionField> ASCheb(0.0, 10., 12);//added
+  ChebyshevLanczos<ASymmFermionField> ASCheby(101, 10, 0, 13); // (highest, lowest, shift, order+1)
+  // chebys are small in (lowest,highest) from shift
 
-  FunctionHermOp<ASymmFermionField> ASPolyXOp(ASPolyX,HermOpAS);
+  //FunctionHermOp<ASymmFermionField> ASPolyXOp(ASPolyX,HermOpAS);
+  FunctionHermOp<ASymmFermionField> ASPolyXOp(ASCheby,HermOpAS);
   PlainHermOp<ASymmFermionField>    ASOp     (HermOpAS);
 
   ImplicitlyRestartedLanczos<ASymmFermionField> IRL_AS(ASOp, ASPolyXOp, Nstop, Nk, Nm,
@@ -142,7 +156,9 @@ NerscHmcCheckpointer<PeriodicGimplR> Checkpoint(CPparams);
                                                
   std::vector<RealD> Fundeval(Nm);
   std::vector<RealD> ASeval(Nm);
+  
 
+        
   FundFermionField Fundsrc(FGrid);
   ASymmFermionField   ASsrc(FGrid);
   
@@ -151,6 +167,7 @@ NerscHmcCheckpointer<PeriodicGimplR> Checkpoint(CPparams);
 
   std::vector<FundFermionField> Fundevec(Nm, FGrid);
   std::vector<ASymmFermionField>   ASevec(Nm, FGrid);
+  
   
   for (int i = 0; i < 1; i++) {
     std::cout << i << " / " << Nm << "Fund: grid pointer " << Fundevec[i].Grid()
@@ -164,14 +181,53 @@ NerscHmcCheckpointer<PeriodicGimplR> Checkpoint(CPparams);
   int FundNconv, ASNconv;
   IRL_Fund.calc(Fundeval, Fundevec, Fundsrc, FundNconv);
   IRL_AS.calc(ASeval, ASevec, ASsrc, ASNconv);
-
-      for (int i=0;i<FundNconv;i++){
+  FundEig[cnfg-CNFGSTART] = Fundeval[0];
+  ASEig[cnfg-CNFGSTART] = ASeval[0];
+  std::cout << "Trajectory number " << cnfg << std::endl;
+  for (int i=0;i<FundNconv;i++)
+  {
       std::cout << "Fund: eval[" << i << "] = " << Fundeval[i] << std::endl;
-    }  
-    for (int i=0;i<ASNconv;i++){
+      
+  }
+  for (int i=0;i<ASNconv;i++)
+  {
       std::cout << "2Index: eval[" << i << "] = " << ASeval[i] << std::endl;
-    }  
+   }
+} //end cnfg loop
+    
+    std::ofstream fileEigenFund;
+    fileEigenFund.open ("EigenFund_distribution.log",std::ios_base::app);
+    std::ofstream fileEigenAS;
+    fileEigenAS.open ("EigenAS_distribution.log",std::ios_base::app);
+    
+    RealD sumFund=0;
+    RealD sumAS=0;
+    for (int cnfg=0;cnfg<cngfcount;cnfg+=CNFGSTEP)
+    {
+        fileEigenFund << "FundEigen " << FundEig[cnfg] << std::endl;
+        fileEigenAS << "ASEigen " << ASEig[cnfg] << std::endl;
+        sumFund += FundEig[cnfg];
+        sumAS += ASEig[cnfg];
     }
-
+    sumFund = sumFund/cngfcount;
+    sumAS = sumAS/cngfcount;
+    RealD averageFund=0;
+    RealD averageAS=0;
+    for (int cnfg=0;cnfg<cngfcount;cnfg+=CNFGSTEP)
+    {
+        averageFund += (sumFund - FundEig[cnfg])*(sumFund - FundEig[cnfg]);
+        averageAS += (sumAS - ASEig[cnfg])*(sumAS - ASEig[cnfg]);
+    }
+    averageFund = averageFund/cngfcount;
+    averageFund = sqrt(averageFund);
+    averageAS = averageAS/cngfcount;
+    averageAS = sqrt(averageAS);
+    
+    std::cout << "Lowest eigenvalue in the fundamental representation = " << sumFund << " ± " << averageFund << std::endl;
+    std::cout << "Lowest eigenvalue in the two-index AS representation = " << sumAS << " ± " << averageAS << std::endl;
+    
+    fileEigenFund.close();
+    fileEigenAS.close();
+    
   Grid_finalize();
 }
