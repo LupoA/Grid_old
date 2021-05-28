@@ -30,13 +30,13 @@ NAMESPACE_BEGIN(Grid);
   // Forward declarations
   template<class T>        class iScalar;
   template<class T, int N> class iVector;
-  template<class T, int N> class iMatrix;
+  template<class T, int Ncol, int Nrow = Ncol> class iMatrix;
 
   // These are the Grid tensors
   template<typename T>     struct isGridTensor                : public std::false_type { static constexpr bool notvalue = true; };
   template<class T>        struct isGridTensor<iScalar<T>>    : public std::true_type  { static constexpr bool notvalue = false; };
   template<class T, int N> struct isGridTensor<iVector<T, N>> : public std::true_type  { static constexpr bool notvalue = false; };
-  template<class T, int N> struct isGridTensor<iMatrix<T, N>> : public std::true_type  { static constexpr bool notvalue = false; };
+  template<class T, int Nrow, int Ncol> struct isGridTensor<iMatrix<T, Ncol, Nrow>> : public std::true_type  { static constexpr bool notvalue = false; };
 
   // Traits to identify scalars
   template<typename T>     struct isGridScalar                : public std::false_type { static constexpr bool notvalue = true; };
@@ -405,19 +405,19 @@ NAMESPACE_BEGIN(Grid);
       return ( dim == 0 ) ? N : BaseTraits::Dimension(dim - 1); }
   };
 
-  template<typename T, int N> struct GridTypeMapper<iMatrix<T, N>> {
+  template<typename T, int Ncol, int Nrow> struct GridTypeMapper<iMatrix<T, Ncol, Nrow>> {
     GridTypeMapper_RepeatedTypes;
     using tensor_reduced  = iScalar<typename BaseTraits::tensor_reduced>;
-    using scalar_object   = iMatrix<typename BaseTraits::scalar_object,   N>;
-    using scalar_objectD  = iMatrix<typename BaseTraits::scalar_objectD,  N>;
-    using Complexified    = iMatrix<typename BaseTraits::Complexified,    N>;
-    using Realified       = iMatrix<typename BaseTraits::Realified,       N>;
-    using DoublePrecision = iMatrix<typename BaseTraits::DoublePrecision, N>;
-    using DoublePrecision2= iMatrix<typename BaseTraits::DoublePrecision2, N>;
+    using scalar_object   = iMatrix<typename BaseTraits::scalar_object,   Ncol, Nrow>;
+    using scalar_objectD  = iMatrix<typename BaseTraits::scalar_objectD,  Ncol, Nrow>;
+    using Complexified    = iMatrix<typename BaseTraits::Complexified,    Ncol, Nrow>;
+    using Realified       = iMatrix<typename BaseTraits::Realified,       Ncol, Nrow>;
+    using DoublePrecision = iMatrix<typename BaseTraits::DoublePrecision, Ncol, Nrow>;
+    using DoublePrecision2= iMatrix<typename BaseTraits::DoublePrecision2, Ncol, Nrow>;
     static constexpr int Rank = BaseTraits::Rank + 2;
-    static constexpr std::size_t count = BaseTraits::count * N * N;
+    static constexpr std::size_t count = BaseTraits::count * Nrow * Ncol;
     static constexpr int Dimension(int dim) {
-      return ( dim == 0 || dim == 1 ) ? N : BaseTraits::Dimension(dim - 2); }
+      return ( dim == 0 || dim == 1 ) ? Ncol : BaseTraits::Dimension(dim - 2); }
   };
 
   // Match the index

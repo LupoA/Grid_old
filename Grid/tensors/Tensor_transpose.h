@@ -39,24 +39,28 @@ accelerator_inline ComplexF transpose(ComplexF &rhs){  return rhs;}
 accelerator_inline RealD transpose(RealD &rhs){  return rhs;}
 accelerator_inline RealF transpose(RealF &rhs){  return rhs;}
 
-template<class vtype,int N>
-accelerator_inline typename std::enable_if<isGridTensor<vtype>::value, iMatrix<vtype,N> >::type 
-transpose(iMatrix<vtype,N> arg)
+template<class vtype, int Ncol, int Nrow = Ncol>
+accelerator_inline typename std::enable_if<isGridTensor<vtype>::value, iMatrix<vtype, Ncol, Nrow> >::type
+transpose(iMatrix<vtype, Ncol, Nrow> arg)
 {
-  iMatrix<vtype,N> ret;
-  for(int i=0;i<N;i++){
-    for(int j=0;j<N;j++){
+  // TODO: Eventually remove
+  static_assert(Nrow == Ncol, "this mult implementation requires square matrices");
+  iMatrix<vtype, Ncol, Nrow> ret;
+  for(int i = 0; i < Ncol; i++){
+    for(int j = 0; j < Ncol; j++){
       ret._internal[i][j] = transpose(arg._internal[j][i]); // NB recurses
     }}
   return ret;
 }
-template<class vtype,int N>
-accelerator_inline typename std::enable_if<isGridTensor<vtype>::notvalue, iMatrix<vtype,N> >::type 
-transpose(iMatrix<vtype,N> arg)
+template<class vtype, int Ncol, int Nrow = Ncol>
+accelerator_inline typename std::enable_if<isGridTensor<vtype>::notvalue, iMatrix<vtype, Ncol, Nrow> >::type
+transpose(iMatrix<vtype, Ncol, Nrow> arg)
 {
-  iMatrix<vtype,N> ret;
-  for(int i=0;i<N;i++){
-    for(int j=0;j<N;j++){
+  // TODO: Eventually remove
+  static_assert(Nrow == Ncol, "this mult implementation requires square matrices");
+  iMatrix<vtype, Ncol, Nrow> ret;
+  for(int i = 0; i < Ncol; i++){
+    for(int j = 0; j < Ncol; j++){
       ret._internal[i][j] = arg._internal[j][i]; // Stop recursion if not a tensor type
     }}
   return ret;
@@ -86,25 +90,27 @@ transpose(iScalar<vtype> arg)
 // to that of adj; which is easiers?
 ////////////////////////////////////////////////////////////////////////////////////////////
 #if 0
-template<int Level,class vtype,int N> accelerator_inline 
-typename std::enable_if<matchGridTensorIndex<iMatrix<vtype,N>,Level>::value, iMatrix<vtype,N> >::type 
-transposeIndex (const iMatrix<vtype,N> &arg)
+template<int Level, class vtype, int Ncol, int Nrow = Ncol> accelerator_inline
+typename std::enable_if<matchGridTensorIndex<iMatrix<vtype, Ncol, Nrow>, Level>::value, iMatrix<vtype, Ncol, Nrow> >::type
+transposeIndex (const iMatrix<vtype, Ncol, Nrow> &arg)
 {
-  iMatrix<vtype,N> ret;
-  for(int i=0;i<N;i++){
-    for(int j=0;j<N;j++){
+  // TODO: Eventually remove
+  static_assert(Nrow == Ncol, "this transposeIndex implementation requires square matrices");
+  iMatrix<vtype, Ncol, Nrow> ret;
+  for(int i = 0; i < Ncol; i++){
+    for(int j = 0; j < Ncol; j++){
       ret._internal[i][j] = arg._internal[j][i]; 
     }}
   return ret;
 }
 // or not
-template<int Level,class vtype,int N> accelerator_inline 
-typename std::enable_if<matchGridTensorIndex<iMatrix<vtype,N>,Level>::notvalue, iMatrix<vtype,N> >::type 
-transposeIndex (const iMatrix<vtype,N> &arg)
+template<int Level, class vtype, int Ncol, int Nrow = Ncol> accelerator_inline
+typename std::enable_if<matchGridTensorIndex<iMatrix<vtype, Ncol, Nrow>, Level>::notvalue, iMatrix<vtype, Ncol, Nrow> >::type
+transposeIndex (const iMatrix<vtype, Ncol, Nrow> &arg)
 {
-  iMatrix<vtype,N> ret;
-  for(int i=0;i<N;i++){
-    for(int j=0;j<N;j++){
+  iMatrix<vtype, Ncol, Nrow> ret;
+  for(int i = 0; i < Nrow; i++){
+    for(int j = 0; j < Ncol; j++){
       ret._internal[i][j] = transposeIndex<Level>(arg._internal[i][j]); 
     }}
   return ret;

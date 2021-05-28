@@ -73,13 +73,13 @@ accelerator_inline bool operator==(const iVector<T, N> &t1, const iVector<T, N> 
   return res;
 }
 
-template <class T, int N>
-accelerator_inline bool operator==(const iMatrix<T, N> &t1, const iMatrix<T, N> &t2)
+template <class T, int Ncol, int Nrow = Ncol>
+accelerator_inline bool operator==(const iMatrix<T, Ncol, Nrow> &t1, const iMatrix<T, Ncol, Nrow> &t2)
 {
   bool res = true;
 
-  for (unsigned int i = 0; i < N; ++i)
-  for (unsigned int j = 0; j < N; ++j)
+  for (unsigned int i = 0; i < Nrow; ++i)
+  for (unsigned int j = 0; j < Ncol; ++j)
   {
     res = (res && (t1._internal[i][j] == t2._internal[i][j]));
   }

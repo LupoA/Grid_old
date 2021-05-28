@@ -41,12 +41,14 @@ accelerator_inline ComplexD trace( const ComplexD &arg){    return arg;}
 accelerator_inline RealF trace( const RealF &arg){    return arg;}
 accelerator_inline RealD trace( const RealD &arg){    return arg;}
 
-template<class vtype,int N>
-accelerator_inline auto trace(const iMatrix<vtype,N> &arg) -> iScalar<decltype(trace(arg._internal[0][0]))>
+template<class vtype, int Ncol, int Nrow = Ncol>
+accelerator_inline auto trace(const iMatrix<vtype, Ncol, Nrow> &arg) -> iScalar<decltype(trace(arg._internal[0][0]))>
 {
+  // TODO: Eventually remove
+  static_assert(Nrow == Ncol, "this trace implementation requires square matrices");
   iScalar<decltype( trace(arg._internal[0][0] )) > ret;
   zeroit(ret._internal);
-  for(int i=0;i<N;i++){
+  for(int i = 0; i < Ncol; i++){
     ret._internal=ret._internal+trace(arg._internal[i][i]);
   }
   return ret;

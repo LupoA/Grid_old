@@ -81,13 +81,13 @@ auto ReduceD (const iVector<l,N>& lhs) -> iVector<decltype(ReduceD(lhs._internal
   }
   return ret;
 }
-template<class l,int N> accelerator_inline
-auto ReduceD (const iMatrix<l,N>& lhs) -> iMatrix<decltype(ReduceD(lhs._internal[0][0])),N>
+template<class l, int Ncol, int Nrow = Ncol> accelerator_inline
+auto ReduceD (const iMatrix<l, Ncol, Nrow>& lhs) -> iMatrix<decltype(ReduceD(lhs._internal[0][0])), Ncol, Nrow>
 {
   typedef decltype(ReduceD(lhs._internal[0][0])) ret_t;
   iMatrix<ret_t,N> ret;
-  for(int c1=0;c1<N;c1++){
-  for(int c2=0;c2<N;c2++){
+  for(int c1 = 0; c1 < Nrow; c1++){
+  for(int c2 = 0; c2 < Ncol; c2++){
     ret._internal[c1][c2]=ReduceD(lhs._internal[c1][c2]);
   }}
   return ret;
@@ -114,13 +114,13 @@ auto Reduce (const iVector<l,N>& lhs) -> iVector<decltype(Reduce(lhs._internal[0
   }
   return ret;
 }
-template<class l,int N> accelerator_inline
-auto Reduce (const iMatrix<l,N>& lhs) -> iMatrix<decltype(Reduce(lhs._internal[0][0])),N>
+template<class l, int Ncol, int Nrow = Ncol> accelerator_inline
+auto Reduce (const iMatrix<l, Ncol, Nrow>& lhs) -> iMatrix<decltype(Reduce(lhs._internal[0][0])), Ncol, Nrow>
 {
   typedef decltype(Reduce(lhs._internal[0][0])) ret_t;
-  iMatrix<ret_t,N> ret;
-  for(int c1=0;c1<N;c1++){
-  for(int c2=0;c2<N;c2++){
+  iMatrix<ret_t, Ncol, Nrow> ret;
+  for(int c1 = 0; c1 < Nrow; c1++){
+  for(int c2 = 0; c2 < Ncol; c2++){
     ret._internal[c1][c2]=Reduce(lhs._internal[c1][c2]);
   }}
   return ret;
@@ -175,14 +175,16 @@ auto innerProductD (const iVector<l,N>& lhs,const iVector<r,N>& rhs) -> iScalar<
   }
   return ret;
 }
-template<class l,class r,int N> accelerator_inline
-auto innerProductD (const iMatrix<l,N>& lhs,const iMatrix<r,N>& rhs) -> iScalar<decltype(innerProductD(lhs._internal[0][0],rhs._internal[0][0]))>
+template<class l, class r, int Ncol, int Nrow = Ncol> accelerator_inline
+auto innerProductD (const iMatrix<l, Ncol, Nrow>& lhs, const iMatrix<r, Ncol, Nrow>& rhs) -> iScalar<decltype(innerProductD(lhs._internal[0][0], rhs._internal[0][0]))>
 {
+  // TODO: Eventually remove
+  static_assert(Nrow == Ncol, "this innerProductD implementation requires square matrices");
   typedef decltype(innerProductD(lhs._internal[0][0],rhs._internal[0][0])) ret_t;
   iScalar<ret_t> ret;
   ret=Zero();
-  for(int c1=0;c1<N;c1++){
-    for(int c2=0;c2<N;c2++){
+  for(int c1 = 0; c1 < Nrow; c1++){
+    for(int c2 = 0; c2 < Ncol; c2++){
       ret._internal+=innerProductD(lhs._internal[c1][c2],rhs._internal[c1][c2]);
   }}
   return ret;
@@ -247,14 +249,16 @@ template<class l,class r,int N> accelerator_inline
   }
   return ret;
 }
-template<class l,class r,int N> accelerator_inline
-  auto innerProductD2 (const iMatrix<l,N>& lhs,const iMatrix<r,N>& rhs) -> iScalar<decltype(innerProductD2(lhs._internal[0][0],rhs._internal[0][0]))>
+template<class l, class r, int Ncol, int Nrow = Ncol> accelerator_inline
+  auto innerProductD2 (const iMatrix<l, Ncol, Nrow>& lhs, const iMatrix<r, Ncol, Nrow>& rhs) -> iScalar<decltype(innerProductD2(lhs._internal[0][0], rhs._internal[0][0]))>
 {
+  // TODO: Eventually remove
+  static_assert(Nrow == Ncol, "this mult implementation requires square matrices");
   typedef decltype(innerProductD2(lhs._internal[0][0],rhs._internal[0][0])) ret_t;
   iScalar<ret_t> ret;
   ret=Zero();
-  for(int c1=0;c1<N;c1++){
-    for(int c2=0;c2<N;c2++){
+  for(int c1 = 0; c1 < Nrow; c1++){
+    for(int c2 = 0; c2 < Ncol; c2++){
       ret._internal+=innerProductD2(lhs._internal[c1][c2],rhs._internal[c1][c2]);
     }}
   return ret;
@@ -282,14 +286,16 @@ auto innerProduct (const iVector<l,N>& lhs,const iVector<r,N>& rhs) -> iScalar<d
   }
   return ret;
 }
-template<class l,class r,int N> accelerator_inline
-auto innerProduct (const iMatrix<l,N>& lhs,const iMatrix<r,N>& rhs) -> iScalar<decltype(innerProduct(lhs._internal[0][0],rhs._internal[0][0]))>
+template<class l, class r, int Ncol, int Nrow = Ncol> accelerator_inline
+auto innerProduct (const iMatrix<l, Ncol, Nrow>& lhs, const iMatrix<r, Ncol, Nrow>& rhs) -> iScalar<decltype(innerProduct(lhs._internal[0][0], rhs._internal[0][0]))>
 {
+  // TODO: Eventually remove
+  static_assert(Nrow == Ncol, "this mult implementation requires square matrices");
   typedef decltype(innerProduct(lhs._internal[0][0],rhs._internal[0][0])) ret_t;
   iScalar<ret_t> ret;
   ret=Zero();
-  for(int c1=0;c1<N;c1++){
-    for(int c2=0;c2<N;c2++){
+  for(int c1 = 0; c1 < Nrow; c1++){
+    for(int c2 = 0; c2 < Ncol; c2++){
       ret._internal+=innerProduct(lhs._internal[c1][c2],rhs._internal[c1][c2]);
     }}
   return ret;

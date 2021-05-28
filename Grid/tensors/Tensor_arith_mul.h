@@ -39,16 +39,18 @@ accelerator_inline void mult(iScalar<rtype> * __restrict__ ret,const iScalar<mty
   mult(&ret->_internal,&lhs->_internal,&rhs->_internal);
 }
 
-template<class rrtype,class ltype,class rtype,int N>
-accelerator_inline void mult(iMatrix<rrtype,N> * __restrict__ ret,const iMatrix<ltype,N> * __restrict__ lhs,const iMatrix<rtype,N> * __restrict__ rhs){
-  for(int c1=0;c1<N;c1++){
-    for(int c2=0;c2<N;c2++){
+template<class rrtype, class ltype, class rtype, int Ncol, int Nrow = Ncol>
+accelerator_inline void mult(iMatrix<rrtype, Ncol, Nrow> * __restrict__ ret, const iMatrix<ltype, Ncol, Nrow> * __restrict__ lhs, const iMatrix<rtype, Ncol, Nrow> * __restrict__ rhs){
+  // TODO: Eventually remove
+  static_assert(Nrow == Ncol, "this mult implementation requires square matrices");
+  for(int c1 = 0; c1 < Nrow; c1++){
+    for(int c2 = 0; c2 < Ncol; c2++){
       mult(&ret->_internal[c1][c2],&lhs->_internal[c1][0],&rhs->_internal[0][c2]);
     }
   }
-  for(int c1=0;c1<N;c1++){
-    for(int c3=1;c3<N;c3++){
-      for(int c2=0;c2<N;c2++){
+  for(int c1 = 0; c1 < Ncol; c1++){
+    for(int c3 = 1; c3 < Ncol; c3++){
+      for(int c2 = 0; c2 < Nrow; c2++){
 	mac(&ret->_internal[c1][c2],&lhs->_internal[c1][c3],&rhs->_internal[c3][c2]);
       }
     }
@@ -56,30 +58,32 @@ accelerator_inline void mult(iMatrix<rrtype,N> * __restrict__ ret,const iMatrix<
   return;
 }
 
-template<class rrtype,class ltype,class rtype,int N>
-accelerator_inline void mult(iMatrix<rrtype,N> * __restrict__ ret,const iMatrix<ltype,N> * __restrict__ lhs,const iScalar<rtype> * __restrict__ rhs){
-  for(int c2=0;c2<N;c2++){
-    for(int c1=0;c1<N;c1++){
+template<class rrtype, class ltype, class rtype, int Ncol, int Nrow = Ncol>
+accelerator_inline void mult(iMatrix<rrtype, Ncol, Nrow> * __restrict__ ret, const iMatrix<ltype, Ncol, Nrow> * __restrict__ lhs, const iScalar<rtype> * __restrict__ rhs){
+  for(int c2 = 0; c2 < Ncol; c2++){
+    for(int c1 = 0; c1 < Nrow; c1++){
       mult(&ret->_internal[c1][c2],&lhs->_internal[c1][c2],&rhs->_internal);
     }}
   return;
 }
 
-template<class rrtype,class ltype,class rtype, int N>
-accelerator_inline void mult(iMatrix<rrtype,N> * __restrict__ ret,const iScalar<ltype>   * __restrict__ lhs,const iMatrix<rtype,N> * __restrict__ rhs){
-  for(int c2=0;c2<N;c2++){
-    for(int c1=0;c1<N;c1++){
+template<class rrtype, class ltype, class rtype, int Ncol, int Nrow = Ncol>
+accelerator_inline void mult(iMatrix<rrtype, Ncol, Nrow> * __restrict__ ret, const iScalar<ltype>   * __restrict__ lhs, const iMatrix<rtype, Ncol, Nrow> * __restrict__ rhs){
+  for(int c2 = 0; c2 < Ncol; c2++){
+    for(int c1 = 0; c1 < Nrow; c1++){
       mult(&ret->_internal[c1][c2],&lhs->_internal,&rhs->_internal[c1][c2]);
     }}
   return;
 }
 // Matrix left multiplies vector
-template<class rtype,class vtype,class mtype,int N>
-accelerator_inline void mult(iVector<rtype,N> * __restrict__ ret,const iMatrix<mtype,N> * __restrict__ lhs,const iVector<vtype,N> * __restrict__ rhs)
+template<class rtype, class vtype, class mtype, int Ncol, int Nrow = Ncol>
+accelerator_inline void mult(iVector<rtype, Ncol> * __restrict__ ret, const iMatrix<mtype, Ncol, Nrow> * __restrict__ lhs, const iVector<vtype, Ncol> * __restrict__ rhs)
 {
-  for(int c1=0;c1<N;c1++){
+  // TODO: Eventually remove
+  static_assert(Nrow == Ncol, "this mult implementation requires square matrices");
+  for(int c1 = 0; c1 < Nrow; c1++){
     mult(&ret->_internal[c1],&lhs->_internal[c1][0],&rhs->_internal[0]);
-    for(int c2=1;c2<N;c2++){
+    for(int c2 = 1; c2 < Ncol; c2++){
       mac(&ret->_internal[c1],&lhs->_internal[c1][c2],&rhs->_internal[c2]);
     }
   }
@@ -104,10 +108,10 @@ accelerator_inline void mult(iVector<rtype,N> * __restrict__ ret,
     
 
 
-template<class rtype,class vtype,class mtype,int N> accelerator_inline
-iVector<rtype,N> operator * (const iMatrix<mtype,N>& lhs,const iVector<vtype,N>& rhs)
+template<class rtype, class vtype, class mtype, int Ncol, int Nrow = Ncol> accelerator_inline
+iVector<rtype, Ncol> operator * (const iMatrix<mtype, Ncol, Nrow>& lhs, const iVector<vtype, Ncol>& rhs)
 {
-  iVector<rtype,N> ret;
+  iVector<rtype, Ncol> ret;
   mult(&ret,&lhs,&rhs);
   return ret;
 }
@@ -147,12 +151,12 @@ iVector<rtype,N> operator / (const iVector<rtype,N>& lhs,const iScalar<vtype>& r
   }
   return ret;
 }
-template<class rtype,class vtype,int N> accelerator_inline
-iMatrix<rtype,N> operator / (const iMatrix<rtype,N>& lhs,const iScalar<vtype>& rhs)
+template<class rtype, class vtype, int Ncol, int Nrow = Ncol> accelerator_inline
+iMatrix<rtype, Ncol, Nrow> operator / (const iMatrix<rtype, Ncol, Nrow>& lhs, const iScalar<vtype>& rhs)
 {
-  iMatrix<rtype,N> ret;
-  for(int i=0;i<N;i++){
-    for(int j=0;j<N;j++){
+  iMatrix<rtype, Ncol, Nrow> ret;
+  for(int i = 0; i < Nrow; i++){
+    for(int j = 0; j < Ncol; j++){
       ret._internal[i][j] = lhs._internal[i][j]/rhs._internal;
     }}
   return ret;
@@ -181,45 +185,47 @@ accelerator_inline auto operator * (const iScalar<l>& lhs,const iScalar<r>& rhs)
   mult(&ret,&lhs,&rhs);
   return ret;
 }
-template<class l,class r,int N> accelerator_inline
-auto operator * (const iMatrix<l,N>& lhs,const iMatrix<r,N>& rhs) -> iMatrix<decltype(lhs._internal[0][0]*rhs._internal[0][0]),N>
+template<class l, class r, int Ncol, int Nrow = Ncol> accelerator_inline
+auto operator * (const iMatrix<l, Ncol, Nrow>& lhs, const iMatrix<r, Ncol, Nrow>& rhs) -> iMatrix<decltype(lhs._internal[0][0]*rhs._internal[0][0]), Ncol, Nrow>
 {
   typedef decltype(lhs._internal[0][0]*rhs._internal[0][0]) ret_t;
-  iMatrix<ret_t,N> ret;
+  iMatrix<ret_t, Ncol, Nrow> ret;
   mult(&ret,&lhs,&rhs);
   return ret;
 }
-template<class l,class r, int N> accelerator_inline
-auto operator * (const iMatrix<r,N>& lhs,const iScalar<l>& rhs) -> iMatrix<decltype(lhs._internal[0][0]*rhs._internal),N>
+template<class l,class r, int Ncol, int Nrow = Ncol> accelerator_inline
+auto operator * (const iMatrix<r, Ncol, Nrow>& lhs, const iScalar<l>& rhs) -> iMatrix<decltype(lhs._internal[0][0]*rhs._internal), Ncol, Nrow>
 {
   typedef decltype(lhs._internal[0][0]*rhs._internal) ret_t;
         
-  iMatrix<ret_t,N> ret;
-  for(int c1=0;c1<N;c1++){
-    for(int c2=0;c2<N;c2++){
+  iMatrix<ret_t, Ncol, Nrow> ret;
+  for(int c1 = 0; c1 < Nrow; c1++){
+    for(int c2 = 0; c2 < Ncol; c2++){
       mult(&ret._internal[c1][c2],&lhs._internal[c1][c2],&rhs._internal);
     }}
   return ret;
 }
-template<class l,class r,int N> accelerator_inline
-auto operator * (const iScalar<l>& lhs,const iMatrix<r,N>& rhs) -> iMatrix<decltype(lhs._internal*rhs._internal[0][0]),N>
+template<class l, class r, int Ncol, int Nrow = Ncol> accelerator_inline
+auto operator * (const iScalar<l>& lhs, const iMatrix<r, Ncol, Nrow>& rhs) -> iMatrix<decltype(lhs._internal*rhs._internal[0][0]), Ncol, Nrow>
 {
   typedef decltype(lhs._internal*rhs._internal[0][0]) ret_t;
-  iMatrix<ret_t,N> ret;
-  for(int c1=0;c1<N;c1++){
-    for(int c2=0;c2<N;c2++){
+  iMatrix<ret_t, Ncol, Nrow> ret;
+  for(int c1 = 0; c1 < Nrow; c1++){
+    for(int c2 = 0; c2 < Ncol; c2++){
       mult(&ret._internal[c1][c2],&lhs._internal,&rhs._internal[c1][c2]);
     }}
   return ret;
 }
-template<class l,class r,int N> accelerator_inline
-auto operator * (const iMatrix<l,N>& lhs,const iVector<r,N>& rhs) -> iVector<decltype(lhs._internal[0][0]*rhs._internal[0]),N>
+template<class l, class r, int Ncol, int Nrow = Ncol> accelerator_inline
+auto operator * (const iMatrix<l, Ncol, Nrow>& lhs, const iVector<r, Ncol>& rhs) -> iVector<decltype(lhs._internal[0][0]*rhs._internal[0]), Ncol>
 {
+  // TODO: Eventually remove
+  static_assert(Nrow == Ncol, "this mult implementation requires square matrices");
   typedef decltype(lhs._internal[0][0]*rhs._internal[0]) ret_t;
-  iVector<ret_t,N> ret;
-  for(int c1=0;c1<N;c1++){
+  iVector<ret_t, Ncol> ret;
+  for(int c1 = 0; c1 < Nrow; c1++){
     mult(&ret._internal[c1],&lhs._internal[c1][0],&rhs._internal[0]);
-    for(int c2=1;c2<N;c2++){
+    for(int c2 = 1; c2 < Ncol; c2++){
       mac(&ret._internal[c1],&lhs._internal[c1][c2],&rhs._internal[c2]);
     }
   }

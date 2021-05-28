@@ -295,12 +295,12 @@ public:
 
 };
 
-template <class vtype, int N>
+template <class vtype, int Ncol, int Nrow>
 class iMatrix {
 public:
-  vtype _internal[N][N];
+  vtype _internal[Nrow][Ncol];
 
-  using Traits = GridTypeMapper<iMatrix<vtype, N> >;
+  using Traits = GridTypeMapper<iMatrix<vtype, Ncol, Nrow> >;
 
   GridVector_CopyTraits;
 
@@ -311,9 +311,9 @@ public:
 
   // Allow for type conversion.
   template<class other>
-  accelerator_inline iMatrix &operator=(const iMatrix<other,N> &rhs) {
-    for (int i = 0; i < N; i++)
-      for (int j = 0; j < N; j++) 
+  accelerator_inline iMatrix &operator=(const iMatrix<other, Ncol, Nrow> &rhs) {
+    for (int i = 0; i < Nrow; i++)
+      for (int j = 0; j < Ncol; j++)
 	_internal[i][j] = rhs._internal[i][j];
     return *this;
   };
@@ -322,84 +322,84 @@ public:
     (*this) = s;
   };  // recurse down and hit the constructor for vector_type
 
-  accelerator_inline iMatrix<vtype, N> &operator=(const Zero &hero) {
+  accelerator_inline iMatrix<vtype, Ncol, Nrow> &operator=(const Zero &hero) {
     zeroit(*this);
     return *this;
   }
   template <class T, typename std::enable_if<!isGridTensor<T>::value, T>::type * = nullptr>
-  accelerator_inline auto operator=(T arg) -> iMatrix<vtype, N> {
+  accelerator_inline auto operator=(T arg) -> iMatrix<vtype, Ncol, Nrow> {
     zeroit(*this);
-    for (int i = 0; i < N; i++) _internal[i][i] = arg;
+    for (int i = 0; i < Nrow; i++) _internal[i][i] = arg;
     return *this;
   }
 
-  friend accelerator_inline void zeroit(iMatrix<vtype,N> &that){
-    for(int i=0;i<N;i++){
-      for(int j=0;j<N;j++){
+  friend accelerator_inline void zeroit(iMatrix<vtype, Ncol, Nrow> &that){
+    for(int i=0; i < Nrow; i++){
+      for(int j=0; j < Ncol; j++){
 	zeroit(that._internal[i][j]);
     }}
   }
-  friend accelerator_inline void prefetch(iMatrix<vtype,N> &that){
-    for(int i=0;i<N;i++) {
-      for(int j=0;j<N;j++) { 
+  friend accelerator_inline void prefetch(iMatrix<vtype, Ncol, Nrow> &that){
+    for(int i=0; i < Nrow; i++) {
+      for(int j=0; j < Ncol; j++) {
 	prefetch(that._internal[i][j]);
     }}
   }
-  friend accelerator_inline void vstream(iMatrix<vtype,N> &out,const iMatrix<vtype,N> &in){
-    for(int i=0;i<N;i++){
-      for(int j=0;j<N;j++){
+  friend accelerator_inline void vstream(iMatrix<vtype, Ncol, Nrow> &out,const iMatrix<vtype, Ncol, Nrow> &in){
+    for(int i=0; i < Nrow; i++){
+      for(int j=0; j < Ncol; j++){
 	vstream(out._internal[i][j],in._internal[i][j]);
     }}
   }
-  friend accelerator_inline void vbroadcast(iMatrix<vtype,N> &out,const iMatrix<vtype,N> &in,int lane){
-    for(int i=0;i<N;i++){
-      for(int j=0;j<N;j++){
+  friend accelerator_inline void vbroadcast(iMatrix<vtype, Ncol, Nrow> &out,const iMatrix<vtype, Ncol, Nrow> &in,int lane){
+    for(int i=0; i < Nrow; i++){
+      for(int j=0; j < Ncol; j++){
 	vbroadcast(out._internal[i][j],in._internal[i][j],lane);
     }}
   }
 
-  friend accelerator_inline void permute(iMatrix<vtype,N> &out,const iMatrix<vtype,N> &in,int permutetype){
-    for(int i=0;i<N;i++){
-      for(int j=0;j<N;j++){
+  friend accelerator_inline void permute(iMatrix<vtype, Ncol, Nrow> &out,const iMatrix<vtype, Ncol, Nrow> &in,int permutetype){
+    for(int i=0; i < Nrow; i++){
+      for(int j=0; j < Ncol; j++){
 	permute(out._internal[i][j],in._internal[i][j],permutetype);
     }}
   }
-  friend accelerator_inline void rotate(iMatrix<vtype,N> &out,const iMatrix<vtype,N> &in,int rot){
-    for(int i=0;i<N;i++){
-      for(int j=0;j<N;j++){
+  friend accelerator_inline void rotate(iMatrix<vtype, Ncol, Nrow> &out,const iMatrix<vtype, Ncol, Nrow> &in,int rot){
+    for(int i=0; i < Nrow; i++){
+      for(int j=0; j < Ncol; j++){
       rotate(out._internal[i][j],in._internal[i][j],rot);
     }}
   }
-  friend accelerator_inline void exchange(iMatrix<vtype,N> &out1,iMatrix<vtype,N> &out2,
-					  const iMatrix<vtype,N> &in1,const iMatrix<vtype,N> &in2,int type){
-    for(int i=0;i<N;i++){
-      for(int j=0;j<N;j++){
+  friend accelerator_inline void exchange(iMatrix<vtype, Ncol, Nrow> &out1,iMatrix<vtype, Ncol, Nrow> &out2,
+					  const iMatrix<vtype, Ncol, Nrow> &in1,const iMatrix<vtype, Ncol, Nrow> &in2,int type){
+    for(int i=0; i < Nrow; i++){
+      for(int j=0; j < Ncol; j++){
 	exchange(out1._internal[i][j],out2._internal[i][j],in1._internal[i][j], in2._internal[i][j],type);
     }}
   }
   
   // Unary negation
-  friend accelerator_inline iMatrix<vtype, N> operator-(const iMatrix<vtype, N> &r) {
-    iMatrix<vtype, N> ret;
-    for (int i = 0; i < N; i++) {
-      for (int j = 0; j < N; j++) {
+  friend accelerator_inline iMatrix<vtype, Ncol, Nrow> operator-(const iMatrix<vtype, Ncol, Nrow> &r) {
+    iMatrix<vtype, Ncol, Nrow> ret;
+    for (int i = 0; i < Nrow; i++) {
+      for (int j = 0; j < Ncol; j++) {
 	ret._internal[i][j] = -r._internal[i][j];
     }}
     return ret;
   }
   // *=,+=,-= operators inherit from corresponding "*,-,+" behaviour
   template <class T>
-  accelerator_inline iMatrix<vtype, N> &operator*=(const T &r) {
+  accelerator_inline iMatrix<vtype, Ncol, Nrow> &operator*=(const T &r) {
     *this = (*this) * r;
     return *this;
   }
   template <class T>
-  accelerator_inline iMatrix<vtype, N> &operator-=(const T &r) {
+  accelerator_inline iMatrix<vtype, Ncol, Nrow> &operator-=(const T &r) {
     *this = (*this) - r;
     return *this;
   }
   template <class T>
-  accelerator_inline iMatrix<vtype, N> &operator+=(const T &r) {
+  accelerator_inline iMatrix<vtype, Ncol, Nrow> &operator+=(const T &r) {
     *this = (*this) + r;
     return *this;
   }
@@ -411,16 +411,16 @@ public:
   }
   
   // Host function only
-  friend std::ostream &operator<<(std::ostream &stream, const iMatrix<vtype, N> &o) {
-    stream << "M<" << N << ">{";
-    for (int i = 0; i < N; i++) {
+  friend std::ostream &operator<<(std::ostream &stream, const iMatrix<vtype, Ncol, Nrow> &o) {
+    stream << "M<" << Ncol << ">{";
+    for (int i = 0; i < Nrow; i++) {
       stream << "{";
-      for (int j = 0; j < N; j++) {
+      for (int j = 0; j < Ncol; j++) {
 	stream << o._internal[i][j];
-	if (i < N - 1) stream << ",";
+	if (j < Ncol - 1) stream << ",";
       }
       stream << "}";
-      if (i != N - 1) stream << "\n\t\t";
+      if (i != Nrow - 1) stream << "\n\t\t";
     }
     stream << "}";
     return stream;
@@ -446,10 +446,10 @@ void vprefetch(const iVector<v, N> &vv) {
     vprefetch(vv._internal[i]);
   }
 }
-template <class v, int N> accelerator_inline
-void vprefetch(const iMatrix<v, N> &vv) {
-  for (int i = 0; i < N; i++) {
-    for (int j = 0; j < N; j++) {
+template <class v, int Ncol, int Nrow = Ncol> accelerator_inline
+void vprefetch(const iMatrix<v, Ncol, Nrow> &vv) {
+  for (int i = 0; i < Nrow; i++) {
+    for (int j = 0; j < Ncol; j++) {
       vprefetch(vv._internal[i][j]);
     }
   }
