@@ -2,6 +2,7 @@
 #include <Grid/GridCore.h>
 #include <boost/test/included/unit_test.hpp>
 
+// For a terser syntax
 template <int N>
 using SquareMatrix = std::array<std::array<std::complex<double>, N>, N>;
 
