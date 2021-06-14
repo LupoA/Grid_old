@@ -309,12 +309,14 @@ public:
   accelerator_inline iMatrix(const Zero &z) { zeroit(*this); };
   accelerator iMatrix() = default;
 
+#define ROWCOL_LOOP(i,j) \
+    for (int i = 0; i < Nrow; i++)\
+      for (int j = 0; j < Ncol; j++)
+
   // Allow for type conversion.
   template<class other>
   accelerator_inline iMatrix &operator=(const iMatrix<other, Ncol, Nrow> &rhs) {
-    for (int i = 0; i < Nrow; i++)
-      for (int j = 0; j < Ncol; j++)
-	_internal[i][j] = rhs._internal[i][j];
+    ROWCOL_LOOP(i,j){ _internal[i][j] = rhs._internal[i][j];}
     return *this;
   };
 
@@ -334,57 +336,33 @@ public:
   }
 
   friend accelerator_inline void zeroit(iMatrix<vtype, Ncol, Nrow> &that){
-    for(int i=0; i < Nrow; i++){
-      for(int j=0; j < Ncol; j++){
-	zeroit(that._internal[i][j]);
-    }}
+    ROWCOL_LOOP(i,j){ zeroit(that._internal[i][j]);}
   }
   friend accelerator_inline void prefetch(iMatrix<vtype, Ncol, Nrow> &that){
-    for(int i=0; i < Nrow; i++) {
-      for(int j=0; j < Ncol; j++) {
-	prefetch(that._internal[i][j]);
-    }}
+    ROWCOL_LOOP(i,j){ prefetch(that._internal[i][j]);}
   }
   friend accelerator_inline void vstream(iMatrix<vtype, Ncol, Nrow> &out,const iMatrix<vtype, Ncol, Nrow> &in){
-    for(int i=0; i < Nrow; i++){
-      for(int j=0; j < Ncol; j++){
-	vstream(out._internal[i][j],in._internal[i][j]);
-    }}
+    ROWCOL_LOOP(i,j){ vstream(out._internal[i][j],in._internal[i][j]);}
   }
   friend accelerator_inline void vbroadcast(iMatrix<vtype, Ncol, Nrow> &out,const iMatrix<vtype, Ncol, Nrow> &in,int lane){
-    for(int i=0; i < Nrow; i++){
-      for(int j=0; j < Ncol; j++){
-	vbroadcast(out._internal[i][j],in._internal[i][j],lane);
-    }}
+	  ROWCOL_LOOP(i,j){ vbroadcast(out._internal[i][j],in._internal[i][j],lane);}
   }
 
   friend accelerator_inline void permute(iMatrix<vtype, Ncol, Nrow> &out,const iMatrix<vtype, Ncol, Nrow> &in,int permutetype){
-    for(int i=0; i < Nrow; i++){
-      for(int j=0; j < Ncol; j++){
-	permute(out._internal[i][j],in._internal[i][j],permutetype);
-    }}
+    ROWCOL_LOOP(i,j){ permute(out._internal[i][j],in._internal[i][j],permutetype);}
   }
   friend accelerator_inline void rotate(iMatrix<vtype, Ncol, Nrow> &out,const iMatrix<vtype, Ncol, Nrow> &in,int rot){
-    for(int i=0; i < Nrow; i++){
-      for(int j=0; j < Ncol; j++){
-      rotate(out._internal[i][j],in._internal[i][j],rot);
-    }}
+    ROWCOL_LOOP(i,j){ rotate(out._internal[i][j],in._internal[i][j],rot);}
   }
   friend accelerator_inline void exchange(iMatrix<vtype, Ncol, Nrow> &out1,iMatrix<vtype, Ncol, Nrow> &out2,
 					  const iMatrix<vtype, Ncol, Nrow> &in1,const iMatrix<vtype, Ncol, Nrow> &in2,int type){
-    for(int i=0; i < Nrow; i++){
-      for(int j=0; j < Ncol; j++){
-	exchange(out1._internal[i][j],out2._internal[i][j],in1._internal[i][j], in2._internal[i][j],type);
-    }}
+    ROWCOL_LOOP(i,j){exchange(out1._internal[i][j],out2._internal[i][j],in1._internal[i][j], in2._internal[i][j],type);}
   }
   
   // Unary negation
   friend accelerator_inline iMatrix<vtype, Ncol, Nrow> operator-(const iMatrix<vtype, Ncol, Nrow> &r) {
     iMatrix<vtype, Ncol, Nrow> ret;
-    for (int i = 0; i < Nrow; i++) {
-      for (int j = 0; j < Ncol; j++) {
-	ret._internal[i][j] = -r._internal[i][j];
-    }}
+	  ROWCOL_LOOP(i,j){ ret._internal[i][j] = -r._internal[i][j];}
     return ret;
   }
   // *=,+=,-= operators inherit from corresponding "*,-,+" behaviour
@@ -434,6 +412,7 @@ public:
   strong_inline       scalar_type * begin()       { return reinterpret_cast<      scalar_type *>(_internal[0]); }
   strong_inline const scalar_type * end()   const { return begin() + Traits::count; }
   strong_inline       scalar_type * end()         { return begin() + Traits::count; }
+  #undef ROWCOL_LOOP
 };
 
 template <class v> accelerator_inline
