@@ -17,6 +17,16 @@ Grid::iMatrix<Grid::ComplexD, N> create_iMatrix(SquareMatrix<N> data) {
   return M;
 }
 
+template <int N>
+Grid::iVector<Grid::ComplexD, N> create_iVector(std::array<std::complex<double>, N> data) {
+  Grid::iVector<Grid::ComplexD, N> V;
+  for (int i = 0; i < N; i++) {
+    V._internal[i] = data[i];
+  }
+  return V;
+}
+
+
 struct TestMatrices {
   Grid::iMatrix<Grid::ComplexD, 3> m3a, m3b;
   Grid::iMatrix<Grid::ComplexD, 4> m4a, m4b;
@@ -36,6 +46,17 @@ struct TestMatrices {
                                 {0, 1, 1, 0}, //
                                 {4, 3, 2, 1}}})){};
 };
+
+struct TestVectors {
+  Grid::iVector<Grid::ComplexD, 3> v3a, v3b;
+  Grid::iVector<Grid::ComplexD, 4> v4a, v4b;
+  TestVectors()
+    : v3a(create_iVector<3>({{1, 2, 3}})),
+      v3b(create_iVector<3>({{3, 2, 4}})),
+      v4a(create_iVector<4>({{1, 2, 3, 4}})),
+      v4b(create_iVector<4>({{3, 0, 1, 4}})){};
+};
+
 
 BOOST_AUTO_TEST_SUITE(test_identity)
 
@@ -136,5 +157,101 @@ BOOST_FIXTURE_TEST_CASE(test_iMatrix_minus_4, TestMatrices) {
                                              {-13,-14,-15,-16}};
   BOOST_TEST(result._internal == expect_array);
 }
+
+BOOST_FIXTURE_TEST_CASE(test_iMatrix_scalar_mul_3, TestMatrices) {
+  auto result = m3a * 2.0;
+  std::complex<double> expect_array[3][3] = {{2, 4, 6},
+                                             {8, 10, 12},
+                                             {14, 16, 18}};
+  BOOST_TEST(result._internal == expect_array);
+}
+
+BOOST_FIXTURE_TEST_CASE(test_iMatrix_scalar_mul_4, TestMatrices) {
+  auto result = m4a * 2.0;
+  std::complex<double> expect_array[4][4] = {{2, 4, 6, 8},
+                                             {10, 12, 14, 16},
+                                             {18, 20, 22, 24},
+                                             {26, 28, 30, 32}};
+  BOOST_TEST(result._internal == expect_array);
+}
+
+BOOST_AUTO_TEST_SUITE_END()
+
+BOOST_AUTO_TEST_SUITE(test_innerproduct)
+
+BOOST_FIXTURE_TEST_CASE(test_iMatrix_innerproduct_3, TestMatrices) {
+  std::complex<double> result = innerProductD(m3a, m3b);
+  std::complex<double> expect = 80;
+  BOOST_TEST(result == expect);
+}
+
+BOOST_FIXTURE_TEST_CASE(test_iMatrix_innerproduct_4, TestMatrices) {
+  std::complex<double> result = innerProductD(m4a, m4b);
+  std::complex<double> expect = 231;
+  BOOST_TEST(result == expect);
+}
+
+BOOST_AUTO_TEST_SUITE_END()
+
+BOOST_AUTO_TEST_SUITE(test_outerproduct)
+
+BOOST_FIXTURE_TEST_CASE(test_iVector_outerproduct_3, TestVectors) {
+  auto result = outerProduct(v3a, v3b);
+  std::complex<double> expect_array[3][3] = {{3, 2, 4},
+                                             {6, 4, 8},
+                                             {9, 6, 12}};
+  BOOST_TEST(result._internal == expect_array);
+}
+
+BOOST_FIXTURE_TEST_CASE(test_iVector_outerproduct_4, TestVectors) {
+  auto result = outerProduct(v4a, v4b);
+  std::complex<double> expect_array[4][4] = {{3, 0, 1, 4},
+                                             {6, 0, 2, 8},
+                                             {9, 0, 3, 12},
+                                             {12, 0, 4, 16}};
+  BOOST_TEST(result._internal == expect_array);
+}
+
+BOOST_AUTO_TEST_SUITE_END()
+
+BOOST_AUTO_TEST_SUITE(test_transpose)
+
+BOOST_FIXTURE_TEST_CASE(test_iMatrix_transpose_3, TestMatrices) {
+  auto result = transpose(m3a);
+  std::complex<double> expect_array[3][3] = {{1, 4, 7},
+                                             {2, 5, 8},
+                                             {3, 6, 9}};
+  BOOST_TEST(result._internal == expect_array);
+}
+
+BOOST_FIXTURE_TEST_CASE(test_iMatrix_transpose_4, TestMatrices) {
+  auto result = transpose(m4a);
+  std::complex<double> expect_array[4][4] = {{1, 5, 9, 13},
+                                             {2, 6, 10, 14},
+                                             {3, 7, 11, 15},
+                                             {4, 8, 12, 16}};
+  BOOST_TEST(result._internal == expect_array);
+}
+
+BOOST_AUTO_TEST_SUITE_END()
+
+BOOST_AUTO_TEST_SUITE(test_trace)
+
+BOOST_FIXTURE_TEST_CASE(test_iMatrix_trace_3, TestMatrices) {
+  std::complex<double> result = trace(m3a);
+  std::complex<double> expect = 15;
+  BOOST_TEST(result == expect);
+}
+
+BOOST_FIXTURE_TEST_CASE(test_iMatrix_trace_4, TestMatrices) {
+  std::complex<double> result = trace(m4a);
+  std::complex<double> expect = 34;
+  BOOST_TEST(result == expect);
+}
+
+// TODO: Test Tensor_index.h functions based on some understanding of what they do
+
+// TODO: Test Ta function based on some understanding of what it does.
+// Appears to be 0.5(M - M*) - 1/2Nc Tr (M - M*), but result is not pure imaginary off diagonal.
 
 BOOST_AUTO_TEST_SUITE_END()
