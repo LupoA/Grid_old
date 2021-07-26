@@ -32,7 +32,7 @@ if [ ! -d tensors/tests ]; then
 fi
 
 # Do compilation
-${CXX} -std=c++11 ${SOURCE} ${INCLUDE} ${LIBDIRS} ${LIBS} -o tensors/tests/test_imatrix
+${CXX} -std=c++11 -g3 ${SOURCE} ${INCLUDE} ${LIBDIRS} ${LIBS} -o tensors/tests/test_imatrix
 
 # Run tests
 ./tensors/tests/test_imatrix
