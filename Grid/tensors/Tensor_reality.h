@@ -48,11 +48,11 @@ template<class vtype,int N> accelerator_inline iVector<vtype,N> timesI(const iVe
   }
   return ret;
 }
-template<class vtype,int N> accelerator_inline iMatrix<vtype,N> timesI(const iMatrix<vtype,N>&r)
+template<class vtype, int Ncol, int Nrow = Ncol> accelerator_inline iMatrix<vtype, Nrow, Ncol> timesI(const iMatrix<vtype, Nrow, Ncol>&r)
 {
-  iMatrix<vtype,N> ret;
-  for(int i=0;i<N;i++){
-    for(int j=0;j<N;j++){
+  iMatrix<vtype, Nrow, Ncol> ret;
+  for(int i = 0; i < Nrow; i++){
+    for(int j = 0; j < Ncol; j++){
       timesI(ret._internal[i][j],r._internal[i][j]);
     }}
   return ret;
@@ -68,10 +68,10 @@ template<class vtype,int N> accelerator_inline void timesI(iVector<vtype,N> &ret
     timesI(ret._internal[i],r._internal[i]);
   }
 }
-template<class vtype,int N> accelerator_inline void  timesI(iMatrix<vtype,N> &ret,const iMatrix<vtype,N>&r)
+template<class vtype, int Ncol, int Nrow = Ncol> accelerator_inline void  timesI(iMatrix<vtype, Ncol, Nrow> &ret, const iMatrix<vtype, Ncol, Nrow>&r)
 {
-  for(int i=0;i<N;i++){
-    for(int j=0;j<N;j++){
+  for(int i = 0; i < Nrow; i++){
+    for(int j = 0; j < Ncol; j++){
       timesI(ret._internal[i][j],r._internal[i][j]);
     }}
 }
@@ -91,11 +91,11 @@ template<class vtype,int N> accelerator_inline iVector<vtype,N> timesMinusI(cons
   }
   return ret;
 }
-template<class vtype,int N> accelerator_inline iMatrix<vtype,N> timesMinusI(const iMatrix<vtype,N>&r)
+template<class vtype, int Ncol, int Nrow = Ncol> accelerator_inline iMatrix<vtype, Ncol, Nrow> timesMinusI(const iMatrix<vtype, Ncol, Nrow>&r)
 {
-  iMatrix<vtype,N> ret;
-  for(int i=0;i<N;i++){
-    for(int j=0;j<N;j++){
+  iMatrix<vtype, Ncol, Nrow> ret;
+  for(int i = 0; i < Nrow; i++){
+    for(int j = 0; j < Ncol; j++){
       timesMinusI(ret._internal[i][j],r._internal[i][j]);
     }}
   return ret;
@@ -111,10 +111,10 @@ template<class vtype,int N> accelerator_inline void timesMinusI(iVector<vtype,N>
     timesMinusI(ret._internal[i],r._internal[i]);
   }
 }
-template<class vtype,int N> accelerator_inline void  timesMinusI(iMatrix<vtype,N> &ret,const iMatrix<vtype,N>&r)
+template<class vtype, int Ncol, int Nrow = Ncol> accelerator_inline void  timesMinusI(iMatrix<vtype, Ncol, Nrow> &ret, const iMatrix<vtype, Ncol, Nrow>&r)
 {
-  for(int i=0;i<N;i++){
-    for(int j=0;j<N;j++){
+  for(int i = 0; i < Nrow; i++){
+    for(int j = 0; j < Ncol; j++){
       timesMinusI(ret._internal[i][j],r._internal[i][j]);
     }}
 }
@@ -137,11 +137,11 @@ template<class vtype,int N> accelerator_inline iVector<vtype,N> conjugate(const 
   }
   return ret;
 }
-template<class vtype,int N> accelerator_inline iMatrix<vtype,N> conjugate(const iMatrix<vtype,N>&r)
+template<class vtype, int Ncol, int Nrow = Ncol> accelerator_inline iMatrix<vtype, Ncol, Nrow> conjugate(const iMatrix<vtype, Ncol, Nrow>&r)
 {
-  iMatrix<vtype,N> ret;
-  for(int i=0;i<N;i++){
-    for(int j=0;j<N;j++){
+  iMatrix<vtype, Ncol, Nrow> ret;
+  for(int i = 0; i < Nrow; i++){
+    for(int j = 0; j < Ncol; j++){
       ret._internal[i][j] = conjugate(r._internal[i][j]);
     }}
   return ret;
@@ -164,11 +164,11 @@ template<class vtype,int N> accelerator_inline iVector<vtype,N> adj(const iVecto
   }
   return ret;
 }
-template<class vtype,int N> accelerator_inline iMatrix<vtype,N> adj(const iMatrix<vtype,N> &arg)
+template<class vtype, int Ncol, int Nrow = Ncol> accelerator_inline iMatrix<vtype, Ncol, Nrow> adj(const iMatrix<vtype, Ncol, Nrow> &arg)
 {
-  iMatrix<vtype,N> ret;
-  for(int c1=0;c1<N;c1++){
-    for(int c2=0;c2<N;c2++){
+  iMatrix<vtype, Ncol, Nrow> ret;
+  for(int c1 = 0; c1 < Nrow; c1++){
+    for(int c2 = 0; c2 < Ncol; c2++){
       ret._internal[c1][c2]=adj(arg._internal[c2][c1]);
     }}
   return ret;
@@ -189,11 +189,11 @@ template<class itype> accelerator_inline auto real(const iScalar<itype> &z) -> i
   ret._internal = real(z._internal);
   return ret;
 }
-template<class itype,int N> accelerator_inline auto real(const iMatrix<itype,N> &z) -> iMatrix<decltype(real(z._internal[0][0])),N>
+template<class itype, int Ncol, int Nrow = Ncol> accelerator_inline auto real(const iMatrix<itype, Ncol, Nrow> &z) -> iMatrix<decltype(real(z._internal[0][0])), Ncol, Nrow>
 {
-  iMatrix<decltype(real(z._internal[0][0])),N> ret;
-  for(int c1=0;c1<N;c1++){
-    for(int c2=0;c2<N;c2++){
+  iMatrix<decltype(real(z._internal[0][0])), Ncol, Nrow> ret;
+  for(int c1 = 0; c1 < Nrow; c1++){
+    for(int c2 = 0; c2 < Ncol; c2++){
       ret._internal[c1][c2] = real(z._internal[c1][c2]);
     }}
   return ret;

@@ -1,6 +1,6 @@
 /*************************************************************************************
 
-    Grid physics library, www.github.com/paboyle/Grid 
+    Grid physics library, www.github.com/paboyle/Grid
 
     Source file: ./lib/tensors/Tensor_outer.h
 
@@ -45,13 +45,15 @@ accelerator_inline RR outerProduct(const RR &l, const RR& r)
   return l*r;
 }
 
-template<class l,class r,int N> accelerator_inline
-auto outerProduct (const iVector<l,N>& lhs,const iVector<r,N>& rhs) -> iMatrix<decltype(outerProduct(lhs._internal[0],rhs._internal[0])),N>
+template<class l, class r, int Ncol, int Nrow = Ncol> accelerator_inline
+auto outerProduct (const iVector<l, Ncol>& lhs,const iVector<r, Ncol>& rhs) -> iMatrix<decltype(outerProduct(lhs._internal[0],rhs._internal[0])), Ncol, Nrow>
 {
+  // TODO: Eventually remove
+  static_assert(Nrow == Ncol, "this outerProduct implementation requires square matrices");
   typedef decltype(outerProduct(lhs._internal[0],rhs._internal[0])) ret_t;
-  iMatrix<ret_t,N> ret;
-  for(int c1=0;c1<N;c1++){
-    for(int c2=0;c2<N;c2++){
+  iMatrix<ret_t, Ncol, Nrow> ret;
+  for(int c1 = 0; c1 < Ncol; c1++){
+    for(int c2 = 0; c2 < Ncol; c2++){
       ret._internal[c1][c2] = outerProduct(lhs._internal[c1],rhs._internal[c2]);
   }}
   return ret;

@@ -57,20 +57,20 @@ template<class vtype,class ltype,class rtype,int N> accelerator_inline void sub(
   }
   return;
 }
-template<class vtype,class ltype,class rtype, int N> accelerator_inline void sub(iMatrix<vtype,N> * __restrict__ ret,
-									    const iMatrix<ltype,N> * __restrict__ lhs,
-									    const iMatrix<rtype,N> * __restrict__ rhs){
-  for(int c2=0;c2<N;c2++){
-    for(int c1=0;c1<N;c1++){
+template<class vtype, class ltype, class rtype, int Ncol, int Nrow = Ncol> accelerator_inline void sub(iMatrix<vtype, Ncol, Nrow> * __restrict__ ret,
+									    const iMatrix<ltype, Ncol, Nrow> * __restrict__ lhs,
+									    const iMatrix<rtype, Ncol, Nrow> * __restrict__ rhs){
+  for(int c2 = 0; c2 < Ncol; c2++){
+    for(int c1 = 0; c1 < Nrow; c1++){
       sub(&ret->_internal[c1][c2],&lhs->_internal[c1][c2],&rhs->_internal[c1][c2]);
     }}
   return;
 }
-template<class vtype,class ltype,class rtype, int N> accelerator_inline void sub(iMatrix<vtype,N> * __restrict__ ret,
+template<class vtype, class ltype, class rtype, int Ncol, int Nrow = Ncol> accelerator_inline void sub(iMatrix<vtype, Ncol, Nrow> * __restrict__ ret,
 									    const iScalar<ltype> * __restrict__ lhs,
-									    const iMatrix<rtype,N> * __restrict__ rhs){
-  for(int c2=0;c2<N;c2++){
-    for(int c1=0;c1<N;c1++){
+									    const iMatrix<rtype, Ncol, Nrow> * __restrict__ rhs){
+  for(int c2 = 0; c2 < Ncol; c2++){
+    for(int c1 = 0; c1 < Nrow; c1++){
       if ( c1==c2) {
 	sub(&ret->_internal[c1][c2],&lhs->_internal,&rhs->_internal[c1][c2]);
       } else {
@@ -82,11 +82,11 @@ template<class vtype,class ltype,class rtype, int N> accelerator_inline void sub
     }}
   return;
 }
-template<class vtype,class ltype,class rtype, int N> accelerator_inline void sub(iMatrix<vtype,N> * __restrict__ ret,
-									    const iMatrix<ltype,N> * __restrict__ lhs,
+template<class vtype, class ltype, class rtype, int Ncol, int Nrow = Ncol> accelerator_inline void sub(iMatrix<vtype, Ncol, Nrow> * __restrict__ ret,
+									    const iMatrix<ltype, Ncol, Nrow> * __restrict__ lhs,
 									    const iScalar<rtype> * __restrict__ rhs){
-  for(int c2=0;c2<N;c2++){
-    for(int c1=0;c1<N;c1++){
+  for(int c2 = 0; c2 < Ncol; c2++){
+    for(int c1 = 0; c1 < Nrow; c1++){
       if ( c1==c2)
 	sub(&ret->_internal[c1][c2],&lhs->_internal[c1][c2],&rhs->_internal);
       else
@@ -107,31 +107,31 @@ operator - (const iScalar<ltype>& lhs, const iScalar<rtype>& rhs) -> iScalar<dec
 template<class ltype,class rtype,int N>
 accelerator_inline auto operator - (const iVector<ltype,N>& lhs,const iVector<rtype,N>& rhs) ->iVector<decltype(lhs._internal[0]-rhs._internal[0]),N>
 {
-  typedef iVector<decltype(lhs._internal[0]-rhs._internal[0]),N> ret_t;
+  typedef iVector<decltype(lhs._internal[0]-rhs._internal[0]), N> ret_t;
   ret_t ret;
   sub(&ret,&lhs,&rhs);
   return ret;
 }
-template<class ltype,class rtype,int N>
-accelerator_inline auto operator - (const iMatrix<ltype,N>& lhs,const iMatrix<rtype,N>& rhs) ->iMatrix<decltype(lhs._internal[0][0]-rhs._internal[0][0]),N>
+template<class ltype, class rtype, int Ncol, int Nrow = Ncol>
+accelerator_inline auto operator - (const iMatrix<ltype, Ncol, Nrow>& lhs,const iMatrix<rtype, Ncol, Nrow>& rhs) ->iMatrix<decltype(lhs._internal[0][0]-rhs._internal[0][0]), Ncol, Nrow>
 {
-  typedef iMatrix<decltype(lhs._internal[0][0]-rhs._internal[0][0]),N> ret_t;
+  typedef iMatrix<decltype(lhs._internal[0][0]-rhs._internal[0][0]), Ncol, Nrow> ret_t;
   ret_t ret;
   sub(&ret,&lhs,&rhs);
   return ret;
 }
-template<class ltype,class rtype,int N>
-accelerator_inline auto operator - (const iScalar<ltype>& lhs,const iMatrix<rtype,N>& rhs)->iMatrix<decltype(lhs._internal-rhs._internal[0][0]),N>
+template<class ltype, class rtype, int Ncol, int Nrow = Ncol>
+accelerator_inline auto operator - (const iScalar<ltype>& lhs,const iMatrix<rtype, Ncol, Nrow>& rhs)->iMatrix<decltype(lhs._internal-rhs._internal[0][0]), Ncol, Nrow>
 {
-  typedef iMatrix<decltype(lhs._internal-rhs._internal[0][0]),N> ret_t;
+  typedef iMatrix<decltype(lhs._internal-rhs._internal[0][0]), Ncol, Nrow> ret_t;
   ret_t ret;
   sub(&ret,&lhs,&rhs);
   return ret;
 }
-template<class ltype,class rtype,int N>
-accelerator_inline auto operator - (const iMatrix<ltype,N>& lhs,const iScalar<rtype>& rhs)->iMatrix<decltype(lhs._internal[0][0]-rhs._internal),N>
+template<class ltype, class rtype, int Ncol, int Nrow = Ncol>
+accelerator_inline auto operator - (const iMatrix<ltype, Ncol, Nrow>& lhs,const iScalar<rtype>& rhs)->iMatrix<decltype(lhs._internal[0][0]-rhs._internal), Ncol, Nrow>
 {
-  typedef iMatrix<decltype(lhs._internal[0][0]-rhs._internal),N> ret_t;
+  typedef iMatrix<decltype(lhs._internal[0][0]-rhs._internal), Ncol, Nrow> ret_t;
   ret_t ret;
   sub(&ret,&lhs,&rhs);
   return ret;

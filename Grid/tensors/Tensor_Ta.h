@@ -56,11 +56,11 @@ template<class vtype,int N> accelerator_inline iVector<vtype,N> Ta(const iVector
   }
   return ret;
 }
-template<class vtype,int N> accelerator_inline iMatrix<vtype,N> Ta(const iMatrix<vtype,N> &arg)
+template<class vtype, int Ncol, int Nrow = Ncol> accelerator_inline iMatrix<vtype, Ncol, Nrow> Ta(const iMatrix<vtype, Ncol, Nrow> &arg)
 {
-  iMatrix<vtype,N> ret;
+  iMatrix<vtype, Ncol, Nrow> ret;
 
-  double factor = (1.0/(double)N);
+  double factor = (1.0/(double)Ncol);
   ret= (arg - adj(arg))*0.5;
   ret=ret - (trace(ret)*factor);
   return ret;
@@ -87,33 +87,35 @@ template<class vtype,int N> accelerator_inline iVector<vtype,N> ProjectOnGroup(c
   }
   return ret;
 }
-template<class vtype,int N, typename std::enable_if< GridTypeMapper<vtype>::TensorLevel == 0 >::type * =nullptr> 
-accelerator_inline iMatrix<vtype,N> ProjectOnGroup(const iMatrix<vtype,N> &arg)
+template<class vtype, int Ncol, typename std::enable_if< GridTypeMapper<vtype>::TensorLevel == 0 >::type * =nullptr, int Nrow = Ncol>
+accelerator_inline iMatrix<vtype, Ncol, Nrow> ProjectOnGroup(const iMatrix<vtype, Ncol, Nrow> &arg)
 {
+  // TODO: Eventually remove
+  static_assert(Nrow == Ncol, "this ProjectOnGroup implementation requires square matrices");
   // need a check for the group type?
-  iMatrix<vtype,N> ret(arg);
+  iMatrix<vtype, Ncol, Nrow> ret(arg);
   vtype nrm;
   vtype inner;
-  for(int c1=0;c1<N;c1++){
+  for(int c1 = 0; c1 < Nrow; c1++){
 
     // Normalises row c1
     zeroit(inner);	
-    for(int c2=0;c2<N;c2++)
-      inner += innerProduct(ret._internal[c1][c2],ret._internal[c1][c2]);
+    for(int c2 = 0; c2 < Ncol; c2++)
+      inner += innerProduct(ret._internal[c1][c2], ret._internal[c1][c2]);
 
     nrm = sqrt(inner);
     nrm = 1.0/nrm;
-    for(int c2=0;c2<N;c2++)
+    for(int c2 = 0; c2 < Ncol; c2++)
       ret._internal[c1][c2]*= nrm;
       
     // Remove c1 from rows c1+1...N-1
-    for (int b=c1+1; b<N; ++b){
+    for (int b = c1+1; b < Nrow; ++b){
       decltype(ret._internal[b][b]*ret._internal[b][b]) pr;
       zeroit(pr);
-      for(int c=0; c<N; ++c)
+      for(int c = 0; c < Ncol; ++c)
 	pr += conjugate(ret._internal[c1][c])*ret._internal[b][c];
 	  
-      for(int c=0; c<N; ++c){
+      for(int c = 0; c < Ncol; ++c){
 	ret._internal[b][c] -= pr * ret._internal[c1][c];
       }
     }
@@ -121,14 +123,14 @@ accelerator_inline iMatrix<vtype,N> ProjectOnGroup(const iMatrix<vtype,N> &arg)
 
   // Normalise last row
   {
-    int c1 = N-1;
+    int c1 = Nrow-1;
     zeroit(inner);	
-    for(int c2=0;c2<N;c2++)
+    for(int c2 = 0; c2 < Ncol; c2++)
       inner += innerProduct(ret._internal[c1][c2],ret._internal[c1][c2]);
 
     nrm = sqrt(inner);
     nrm = 1.0/nrm;
-    for(int c2=0;c2<N;c2++)
+    for(int c2 = 0; c2 < Ncol; c2++)
       ret._internal[c1][c2]*= nrm;
   }
   // assuming the determinant is ok

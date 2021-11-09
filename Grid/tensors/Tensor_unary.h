@@ -47,11 +47,11 @@ NAMESPACE_BEGIN(Grid);
     }									\
     return ret;								\
   }									\
-  template<class obj,int N> accelerator_inline auto func(const iMatrix<obj,N> &z) -> iMatrix<obj,N>	\
+  template<class obj, int Ncol, int Nrow = Ncol> accelerator_inline auto func(const iMatrix<obj, Ncol, Nrow> &z) -> iMatrix<obj, Ncol, Nrow> \
   {									\
-    iMatrix<obj,N> ret;							\
-    for(int c1=0;c1<N;c1++){						\
-      for(int c2=0;c2<N;c2++){						\
+    iMatrix<obj, Ncol, Nrow> ret;            \
+    for(int c1 = 0; c1 < Nrow; c1++){						\
+      for(int c2 = 0; c2 < Ncol; c2++){						\
 	ret._internal[c1][c2] = func( (z._internal[c1][c2]));		\
       }}								\
     return ret;								\
@@ -73,11 +73,11 @@ NAMESPACE_BEGIN(Grid);
     }									\
     return ret;								\
   }									\
-  template<class obj,int N> accelerator_inline  iMatrix<obj,N> func(const iMatrix<obj,N> &z, scal y) \
+  template<class obj, int Ncol, int Nrow = Ncol> accelerator_inline  iMatrix<obj, Ncol, Nrow> func(const iMatrix<obj, Ncol, Nrow> &z, scal y) \
   {									\
-    iMatrix<obj,N> ret;							\
-    for(int c1=0;c1<N;c1++){						\
-      for(int c2=0;c2<N;c2++){						\
+    iMatrix<obj, Ncol, Nrow> ret;            \
+    for(int c1 = 0; c1 < Nrow; c1++){						\
+      for(int c2 = 0; c2 < Ncol; c2++){						\
 	ret._internal[c1][c2] = func(z._internal[c1][c2],y);		\
       }}								\
     return ret;								\
@@ -108,11 +108,11 @@ template<class obj,int N> accelerator_inline auto toReal(const iVector<obj,N> &z
   }
   return ret;
 }
-template<class obj,int N> accelerator_inline auto toReal(const iMatrix<obj,N> &z) -> typename iMatrix<obj,N>::Realified
+template<class obj, int Ncol, int Nrow = Ncol> accelerator_inline auto toReal(const iMatrix<obj, Ncol, Nrow> &z) -> typename iMatrix<obj, Ncol, Nrow>::Realified
 {
-  typename iMatrix<obj,N>::Realified ret;
-  for(int c1=0;c1<N;c1++){
-    for(int c2=0;c2<N;c2++){
+  typename iMatrix<obj, Ncol, Nrow>::Realified ret;
+  for(int c1 = 0; c1 < Nrow; c1++){
+    for(int c2 = 0; c2 < Ncol; c2++){
       ret._internal[c1][c2] = toReal(z._internal[c1][c2]);
     }}
   return ret;
@@ -132,11 +132,11 @@ template<class obj,int N> accelerator_inline auto toComplex(const iVector<obj,N>
   }
   return ret;
 }
-template<class obj,int N> accelerator_inline auto toComplex(const iMatrix<obj,N> &z) -> typename iMatrix<obj,N>::Complexified
+template<class obj, int Ncol, int Nrow = Ncol> accelerator_inline auto toComplex(const iMatrix<obj, Ncol, Nrow> &z) -> typename iMatrix<obj, Ncol, Nrow>::Complexified
 {
-  typename iMatrix<obj,N>::Complexified ret;
-  for(int c1=0;c1<N;c1++){
-    for(int c2=0;c2<N;c2++){
+  typename iMatrix<obj, Ncol, Nrow>::Complexified ret;
+  for(int c1 = 0; c1 < Nrow; c1++){
+    for(int c2 = 0; c2 < Ncol; c2++){
       ret._internal[c1][c2] = toComplex(z._internal[c1][c2]);
     }}
   return ret;

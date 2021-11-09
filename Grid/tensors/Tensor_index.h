@@ -53,19 +53,19 @@ public:
   ////////////////////////////////////////////////////
   template<class vtype>       static accelerator_inline int indexRank(const iScalar<vtype> tmp)  { return TensorIndexRecursion<Level-1>::indexRank(tmp._internal);  }
   template<class vtype,int N> static accelerator_inline int indexRank(const iVector<vtype,N> tmp){ return TensorIndexRecursion<Level-1>::indexRank(tmp._internal[0]);  }
-  template<class vtype,int N> static accelerator_inline int indexRank(const iMatrix<vtype,N> tmp){ return TensorIndexRecursion<Level-1>::indexRank(tmp._internal[0][0]);  }
+  template<class vtype, int Ncol, int Nrow = Ncol> static accelerator_inline int indexRank(const iMatrix<vtype, Ncol, Nrow> tmp){ return TensorIndexRecursion<Level-1>::indexRank(tmp._internal[0][0]);  }
 
   template<class vtype>       static accelerator_inline int isScalar(const iScalar<vtype> tmp)  { return TensorIndexRecursion<Level-1>::isScalar(tmp._internal);  }
   template<class vtype,int N> static accelerator_inline int isScalar(const iVector<vtype,N> tmp){ return TensorIndexRecursion<Level-1>::isScalar(tmp._internal[0]);  }
-  template<class vtype,int N> static accelerator_inline int isScalar(const iMatrix<vtype,N> tmp){ return TensorIndexRecursion<Level-1>::isScalar(tmp._internal[0][0]);  }
+  template<class vtype, int Ncol, int Nrow = Ncol> static accelerator_inline int isScalar(const iMatrix<vtype, Ncol, Nrow> tmp){ return TensorIndexRecursion<Level-1>::isScalar(tmp._internal[0][0]);  }
 
   template<class vtype>       static accelerator_inline int isVector(const iScalar<vtype> tmp)  { return TensorIndexRecursion<Level-1>::isVector(tmp._internal);  }
   template<class vtype,int N> static accelerator_inline int isVector(const iVector<vtype,N> tmp){ return TensorIndexRecursion<Level-1>::isVector(tmp._internal[0]);  }
-  template<class vtype,int N> static accelerator_inline int isVector(const iMatrix<vtype,N> tmp){ return TensorIndexRecursion<Level-1>::isVector(tmp._internal[0][0]);  }
+  template<class vtype, int Ncol, int Nrow = Ncol> static accelerator_inline int isVector(const iMatrix<vtype, Ncol, Nrow> tmp){ return TensorIndexRecursion<Level-1>::isVector(tmp._internal[0][0]);  }
   
   template<class vtype>       static accelerator_inline int isMatrix(const iScalar<vtype> tmp)  { return TensorIndexRecursion<Level-1>::isMatrix(tmp._internal);  }
   template<class vtype,int N> static accelerator_inline int isMatrix(const iVector<vtype,N> tmp){ return TensorIndexRecursion<Level-1>::isMatrix(tmp._internal[0]);  }
-  template<class vtype,int N> static accelerator_inline int isMatrix(const iMatrix<vtype,N> tmp){ return TensorIndexRecursion<Level-1>::isMatrix(tmp._internal[0][0]);  }
+  template<class vtype, int Ncol, int Nrow = Ncol> static accelerator_inline int isMatrix(const iMatrix<vtype, Ncol, Nrow> tmp){ return TensorIndexRecursion<Level-1>::isMatrix(tmp._internal[0][0]);  }
   ////////////////////////////////////////////////////
   // Trace
   ////////////////////////////////////////////////////
@@ -85,12 +85,12 @@ public:
     }
     return ret;
   }
-  template<class vtype,int N>
-  static accelerator_inline auto traceIndex(const iMatrix<vtype,N> arg) ->  iMatrix<decltype(TensorIndexRecursion<Level-1>::traceIndex(arg._internal[0][0])),N> 
+  template<class vtype, int Ncol, int Nrow = Ncol>
+  static accelerator_inline auto traceIndex(const iMatrix<vtype, Ncol, Nrow> arg) ->  iMatrix<decltype(TensorIndexRecursion<Level-1>::traceIndex(arg._internal[0][0])), Ncol, Nrow>
   {
-    iMatrix<decltype(TensorIndexRecursion<Level-1>::traceIndex(arg._internal[0][0])),N> ret;
-    for(int i=0;i<N;i++){
-      for(int j=0;j<N;j++){
+    iMatrix<decltype(TensorIndexRecursion<Level-1>::traceIndex(arg._internal[0][0])), Ncol, Nrow> ret;
+    for(int i = 0; i < Nrow; i++){
+      for(int j = 0; j < Ncol; j++){
 	ret._internal[i][j] = TensorIndexRecursion<Level-1>::traceIndex(arg._internal[i][j]);
       }}
     return ret;
@@ -133,23 +133,23 @@ public:
     return ret;
   }
   
-  template<class vtype,int N>
-  static accelerator_inline auto peekIndex(const iMatrix<vtype,N> arg,int ii) ->  iMatrix<decltype(TensorIndexRecursion<Level-1>::peekIndex(arg._internal[0][0],0)),N> 
+  template<class vtype, int Ncol, int Nrow = Ncol>
+  static accelerator_inline auto peekIndex(const iMatrix<vtype, Ncol, Nrow> arg, int ii) ->  iMatrix<decltype(TensorIndexRecursion<Level-1>::peekIndex(arg._internal[0][0], 0)), Ncol, Nrow>
   {
-    iMatrix<decltype(TensorIndexRecursion<Level-1>::peekIndex(arg._internal[0][0],0)),N> ret;
-    for(int i=0;i<N;i++){
-      for(int j=0;j<N;j++){
+    iMatrix<decltype(TensorIndexRecursion<Level-1>::peekIndex(arg._internal[0][0], 0)), Ncol, Nrow> ret;
+    for(int i = 0; i < Nrow; i++){
+      for(int j = 0; j < Ncol; j++){
 	ret._internal[i][j] = TensorIndexRecursion<Level-1>::peekIndex(arg._internal[i][j],ii);
       }}
     return ret;
   }
-  template<class vtype,int N>
-  static accelerator_inline auto peekIndex(const iMatrix<vtype,N> arg,int ii,int jj) 
-    ->  iMatrix<decltype(TensorIndexRecursion<Level-1>::peekIndex(arg._internal[0][0],0,0)),N> 
+  template<class vtype, int Ncol, int Nrow = Ncol>
+  static accelerator_inline auto peekIndex(const iMatrix<vtype, Ncol, Nrow> arg, int ii, int jj)
+    ->  iMatrix<decltype(TensorIndexRecursion<Level-1>::peekIndex(arg._internal[0][0], 0, 0)), Ncol, Nrow>
   {
-    iMatrix<decltype(TensorIndexRecursion<Level-1>::peekIndex(arg._internal[0][0],0,0)),N> ret;
-    for(int i=0;i<N;i++){
-      for(int j=0;j<N;j++){
+    iMatrix<decltype(TensorIndexRecursion<Level-1>::peekIndex(arg._internal[0][0], 0, 0)), Ncol, Nrow> ret;
+    for(int i = 0; i < Nrow; i++){
+      for(int j = 0; j < Ncol; j++){
 	ret._internal[i][j] = TensorIndexRecursion<Level-1>::peekIndex(arg._internal[i][j],ii,jj);
       }}
     return ret;
@@ -184,19 +184,19 @@ public:
     }
   }
   
-  template<class vtype,int N> accelerator_inline static 
-  void pokeIndex(iMatrix<vtype,N> &ret, const iMatrix<decltype(TensorIndexRecursion<Level-1>::peekIndex(ret._internal[0][0],0)),N> &arg, int i)
+  template<class vtype, int Ncol, int Nrow = Ncol> accelerator_inline static
+  void pokeIndex(iMatrix<vtype, Ncol, Nrow> &ret, const iMatrix<decltype(TensorIndexRecursion<Level-1>::peekIndex(ret._internal[0][0], 0)), Ncol, Nrow> &arg, int i)
   {
-    for(int ii=0;ii<N;ii++){
-      for(int jj=0;jj<N;jj++){
+    for(int ii = 0; ii < Nrow; ii++){
+      for(int jj = 0; jj < Ncol; jj++){
 	TensorIndexRecursion<Level-1>::pokeIndex(ret._internal[ii][jj],arg._internal[ii][jj],i);
       }}
   }
-  template<class vtype,int N> accelerator_inline static 
-  void pokeIndex(iMatrix<vtype,N> &ret, const iMatrix<decltype(TensorIndexRecursion<Level-1>::peekIndex(ret._internal[0][0],0,0)),N> &arg, int i,int j)
+  template<class vtype, int Ncol, int Nrow = Ncol> accelerator_inline static
+  void pokeIndex(iMatrix<vtype, Ncol, Nrow> &ret, const iMatrix<decltype(TensorIndexRecursion<Level-1>::peekIndex(ret._internal[0][0], 0, 0)), Ncol, Nrow> &arg, int i,int j)
   {
-    for(int ii=0;ii<N;ii++){
-      for(int jj=0;jj<N;jj++){
+    for(int ii = 0; ii < Nrow; ii++){
+      for(int jj = 0; jj < Ncol; jj++){
 	TensorIndexRecursion<Level-1>::pokeIndex(ret._internal[ii][jj],arg._internal[ii][jj],i,j);
       }}
   }
@@ -220,12 +220,12 @@ public:
     }
     return ret;
   }
-  template<class vtype,int N> accelerator_inline 
-  static auto transposeIndex(const iMatrix<vtype,N> arg) ->  iMatrix<vtype,N> 
+  template<class vtype, int Ncol, int Nrow = Ncol> accelerator_inline
+  static auto transposeIndex(const iMatrix<vtype, Ncol, Nrow> arg) ->  iMatrix<vtype, Ncol, Nrow>
   {
-    iMatrix<vtype,N> ret;
-    for(int i=0;i<N;i++){
-      for(int j=0;j<N;j++){
+    iMatrix<vtype, Ncol, Nrow> ret;
+    for(int i = 0; i < Nrow; i++){
+      for(int j = 0; j < Ncol; j++){
 	ret._internal[i][j] = TensorIndexRecursion<Level-1>::transposeIndex(arg._internal[i][j]);
       }}
     return ret;
@@ -244,19 +244,19 @@ public:
   ////////////////////////////////////////////////////
   template<class vtype>       static accelerator_inline int indexRank(const iScalar<vtype> tmp)  { return 1; }
   template<class vtype,int N> static accelerator_inline int indexRank(const iVector<vtype,N> tmp){ return N; }
-  template<class vtype,int N> static accelerator_inline int indexRank(const iMatrix<vtype,N> tmp){ return N; }
+  template<class vtype, int Ncol, int Nrow = Ncol> static accelerator_inline int indexRank(const iMatrix<vtype, Ncol, Nrow> tmp){ return Ncol; }
 
   template<class vtype>       static accelerator_inline int isScalar(const iScalar<vtype> tmp)  { return true;}
   template<class vtype,int N> static accelerator_inline int isScalar(const iVector<vtype,N> tmp){ return false;}
-  template<class vtype,int N> static accelerator_inline int isScalar(const iMatrix<vtype,N> tmp){ return false;}
+  template<class vtype, int Ncol, int Nrow = Ncol> static accelerator_inline int isScalar(const iMatrix<vtype, Ncol, Nrow> tmp){ return false;}
 
   template<class vtype>       static accelerator_inline int isVector(const iScalar<vtype> tmp)  { return false;}
   template<class vtype,int N> static accelerator_inline int isVector(const iVector<vtype,N> tmp){ return true;}
-  template<class vtype,int N> static accelerator_inline int isVector(const iMatrix<vtype,N> tmp){ return false;}
+  template<class vtype, int Ncol, int Nrow = Ncol> static accelerator_inline int isVector(const iMatrix<vtype, Ncol, Nrow> tmp){ return false;}
 
   template<class vtype>       static accelerator_inline int isMatrix(const iScalar<vtype> tmp)  { return false;}
   template<class vtype,int N> static accelerator_inline int isMatrix(const iVector<vtype,N> tmp){ return false;}
-  template<class vtype,int N> static accelerator_inline int isMatrix(const iMatrix<vtype,N> tmp){ return true;}
+  template<class vtype, int Ncol, int Nrow = Ncol> static accelerator_inline int isMatrix(const iMatrix<vtype, Ncol, Nrow> tmp){ return true;}
 
   /////////////////////////////////////////
   // Ends recursion for trace (scalar/vector/matrix)
@@ -278,12 +278,14 @@ public:
     }
     return ret;
   }
-  template<class vtype,int N> accelerator_inline 
-  static auto traceIndex(const iMatrix<vtype,N> arg) ->  iScalar<RemoveCRV(arg._internal[0][0])> 
+  template<class vtype, int Ncol, int Nrow = Ncol> accelerator_inline
+  static auto traceIndex(const iMatrix<vtype, Ncol, Nrow> arg) ->  iScalar<RemoveCRV(arg._internal[0][0])>
   {
+    // TODO: Eventually remove
+    static_assert(Nrow == Ncol, "this traceIndex implementation requires square matrices");
     iScalar<RemoveCRV(arg._internal[0][0])> ret;
     zeroit(ret);
-    for(int i=0;i<N;i++){
+    for(int i = 0; i < Ncol; i++){
       ret._internal = ret._internal+arg._internal[i][i];
     }
     return ret;
@@ -298,13 +300,13 @@ public:
     ret._internal = arg._internal;
     return ret;
   }
-  template<class vtype,int N> accelerator_inline 
-  static auto transposeIndex(const iMatrix<vtype,N> arg)  ->  iMatrix<vtype,N> 
+  template<class vtype, int Ncol, int Nrow = Ncol> accelerator_inline
+  static auto transposeIndex(const iMatrix<vtype, Ncol, Nrow> arg)  ->  iMatrix<vtype, Ncol, Nrow>
   {
-    iMatrix<vtype,N> ret;
+    iMatrix<vtype, Ncol, Nrow> ret;
     ret=Zero();
-    for(int i=0;i<N;i++){
-      for(int j=0;j<N;j++){
+    for(int i = 0; i < Nrow; i++){
+      for(int j = 0; j < Ncol; j++){
 	ret._internal[i][j] = ret._internal[i][j]+arg._internal[i][j];
       }}
     return ret;
@@ -319,8 +321,8 @@ public:
     ret._internal = arg._internal[ii];
     return ret;
   }
-  template<class vtype,int N> accelerator_inline 
-  static auto peekIndex(const iMatrix<vtype,N> arg,int ii,int jj) ->  iScalar<vtype>
+  template<class vtype, int Ncol, int Nrow = Ncol> accelerator_inline
+  static auto peekIndex(const iMatrix<vtype, Ncol, Nrow> arg, int ii, int jj) ->  iScalar<vtype>
   {
     iScalar<vtype> ret;
     ret._internal = arg._internal[ii][jj];
@@ -333,8 +335,8 @@ public:
     ret._internal[i] = arg._internal;
   }
   // Matrix poke two indices
-  template<class vtype,int N> accelerator_inline static 
-  void pokeIndex(iMatrix<vtype,N> &ret, const iScalar<vtype> &arg,int i,int j)
+  template<class vtype, int Ncol, int Nrow = Ncol> accelerator_inline static
+  void pokeIndex(iMatrix<vtype, Ncol, Nrow> &ret, const iScalar<vtype> &arg, int i, int j)
   {
     ret._internal[i][j] = arg._internal;
   }

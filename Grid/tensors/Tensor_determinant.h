@@ -45,24 +45,26 @@ template<class vtype> accelerator_inline auto Determinant(const iScalar<vtype>&r
   return ret;
 }
 
-template<class vtype,int N, typename std::enable_if< GridTypeMapper<vtype>::TensorLevel == 0 >::type * =nullptr> 
-accelerator_inline iScalar<vtype> Determinant(const iMatrix<vtype,N> &arg)
+template<class vtype, int Ncol, typename std::enable_if< GridTypeMapper<vtype>::TensorLevel == 0 >::type * =nullptr, int Nrow = Ncol>
+accelerator_inline iScalar<vtype> Determinant(const iMatrix<vtype, Ncol, Nrow> &arg)
 {
-  iMatrix<vtype,N> ret(arg);
+  // TODO: Eventually remove
+  static_assert(Nrow == Ncol, "this Determinant implementation requires square matrices");
+  iMatrix<vtype, Ncol, Nrow> ret(arg);
   iScalar<vtype> det = vtype(1.0);
   /* Conversion of matrix to upper triangular */
-  for(int i = 0; i < N; i++){
-    for(int j = 0; j < N; j++){
+  for(int i = 0; i < Ncol; i++){
+    for(int j = 0; j < Ncol; j++){
       if(j>i){
 	vtype ratio = ret._internal[j][i]/ret._internal[i][i];
-	for(int k = 0; k < N; k++){
+	for(int k = 0; k < Ncol; k++){
 	  ret._internal[j][k] -= ratio * ret._internal[i][k];
 	}
       }
     }
   }      
 
-  for(int i = 0; i < N; i++)
+  for(int i = 0; i < Nrow; i++)
     det *= ret._internal[i][i];   
 
   return det;
